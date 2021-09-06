@@ -12,30 +12,28 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
+
 @Autonomous(name = "Full Auto")
 
 public class DemoAutoEncoderAndIMU extends LinearOpMode {
 
-    public DcMotor motorLeft;
-    public DcMotor motorRight;
-
-    BNO055IMU imu;
-    Orientation lastAngles = new Orientation();
-    double globalAngle;
-
-
-    private ElapsedTime runtime = new ElapsedTime();
-
-    static final double COUNTS_PER_MOTOR_REV = 1440;
+    static final double COUNTS_PER_MOTOR_REV = 280;
     static final double DRIVE_GEAR_REDUCTION = 2.0;
-    static final double WHEEL_DIAMETER_INCHES = 2.5;
+    static final double WHEEL_DIAMETER_INCHES = 10;
     static final double COUNTS_PER_INCH = (COUNTS_PER_MOTOR_REV * DRIVE_GEAR_REDUCTION) /
             (WHEEL_DIAMETER_INCHES * 3.1415);
     static final double DRIVE_SPEED = 0.6;
     static final double TURN_SPEED = 0.5;
-
+    public DcMotor dl;
+    public DcMotor dr;
+    BNO055IMU imu;
+    Orientation lastAngles = new Orientation();
+    double globalAngle;
+    private ElapsedTime runtime = new ElapsedTime();
 
     @Override
+
+
     public void runOpMode() {
 
         //Initialize the IMU and its parameters.
@@ -50,13 +48,13 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
         imu = hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
-        motorLeft = hardwareMap.dcMotor.get("motorLeft");
-        motorRight = hardwareMap.dcMotor.get("motorRight");
+        dl = hardwareMap.dcMotor.get("dl");
+        dr = hardwareMap.dcMotor.get("dr");
 
-        motorLeft.setDirection(DcMotor.Direction.REVERSE);
+        dl.setDirection(DcMotor.Direction.REVERSE);
 
-        motorLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        dl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        dr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         //The IMU does not initialize instantly. This makes it so the driver can see when they can push Play without errors.
@@ -67,18 +65,19 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
             idle();
         }
 
+
         telemetry.addData("Status", "Resetting Encoders");
         telemetry.update();
 
-        motorLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dl.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        dr.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        dl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        dr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         telemetry.addData("Path0", "Starting at %7d :%7d",
-                motorLeft.getCurrentPosition(),
-                motorRight.getCurrentPosition());
+                dl.getCurrentPosition(),
+                dr.getCurrentPosition());
         telemetry.update();
 
         //Tells the driver it is ok to start.
@@ -91,9 +90,9 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
 
         waitForStart();
 
-        encoderDrive(DRIVE_SPEED, 12, 12, 5.0);
-        rotate(90, 0.3);
         encoderDrive(DRIVE_SPEED, -12, -12, 5.0);
+        rotate(-90, 0.3);
+        //encoderDrive(DRIVE_SPEED,  -12,  12, 5.0);
 
 
         telemetry.addData("Path", "Complete");
@@ -104,34 +103,34 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
     //Method for driving forward by TIME, not Encoder
     public void driveByTime(double power, long time) {
 
-        motorLeft.setPower(power);
-        motorRight.setPower(power);
+        dl.setPower(power);
+        dr.setPower(power);
 
         sleep(time);
 
-        motorLeft.setPower(0.0);
-        motorRight.setPower(0.0);
+        dl.setPower(0.0);
+        dr.setPower(0.0);
     }
 
     //Method for turning right, by TIME, not IMU
     public void TurnRightByTime(double power, long time) {
-        motorLeft.setPower(power);
-        motorRight.setPower(-power);
+        dl.setPower(-power);
+        dr.setPower(power);
         sleep(time);
 
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
+        dl.setPower(0);
+        dr.setPower(0);
         sleep(250);
     }
 
     //Method for turning left, by TIME, not IMU
     public void TurnLeftByTime(double power, long time) {
-        motorLeft.setPower(-power);
-        motorRight.setPower(power);
+        dl.setPower(power);
+        dr.setPower(-power);
         sleep(time);
 
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
+        dl.setPower(0);
+        dr.setPower(0);
         sleep(250);
     }
 
@@ -146,39 +145,41 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
         if (opModeIsActive()) {
 
             // Determine new target position, and pass to motor controller
-            newLeftTarget = motorLeft.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
-            newRightTarget = motorRight.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
-            motorLeft.setTargetPosition(newLeftTarget);
-            motorRight.setTargetPosition(newRightTarget);
+            newLeftTarget = dl.getCurrentPosition() + (int) (leftInches * COUNTS_PER_INCH);
+            newRightTarget = dr.getCurrentPosition() + (int) (rightInches * COUNTS_PER_INCH);
+            dl.setTargetPosition(newLeftTarget);
+            dr.setTargetPosition(newRightTarget);
 
             // Turn On RUN_TO_POSITION
-            motorLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            motorRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dl.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            dr.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
             // reset the timeout time and start motion.
             runtime.reset();
-            motorLeft.setPower(Math.abs(speed));
-            motorRight.setPower(Math.abs(speed));
+            dl.setPower(Math.abs(speed));
+            dr.setPower(Math.abs(speed));
 
 
             while (opModeIsActive() &&
                     (runtime.seconds() < timeoutS) &&
-                    (motorLeft.isBusy() && motorRight.isBusy())) {
+                    (dl.isBusy() && dr.isBusy())) {
 
                 // Display it for the driver.
                 telemetry.addData("Path1", "Running to %7d :%7d", newLeftTarget, newRightTarget);
                 telemetry.addData("Path2", "Running at %7d :%7d",
-                        motorLeft.getCurrentPosition(),
-                        motorRight.getCurrentPosition());
+                        dl.getCurrentPosition(),
+                        dr.getCurrentPosition());
                 telemetry.update();
             }
+
+
             // Stop all motion;
-            motorLeft.setPower(0);
-            motorRight.setPower(0);
+            dl.setPower(0);
+            dr.setPower(0);
 
             // Turn off RUN_TO_POSITION
-            motorLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-            motorRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dl.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            dr.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         }
 
@@ -211,18 +212,18 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
 
         //if the degrees are less than 0, the robot will turn right
         if (degrees < 0) {
-            leftPower = power;
-            rightPower = -power;
-        } else if (degrees > 0)//if greater than 0, turn left
-        {
             leftPower = -power;
             rightPower = power;
+        } else if (degrees > 0)//if greater than 0, turn left
+        {
+            leftPower = power;
+            rightPower = -power;
         } else return;
 
 
         //sets power to motors with negative signs properly assigned to make the robot go in the correct direction
-        motorLeft.setPower(leftPower);
-        motorRight.setPower(rightPower);
+        dl.setPower(leftPower);
+        dr.setPower(rightPower);
 
         //Repeatedly check the IMU until the getAngle() function returns the value specified.
         if (degrees < 0) {
@@ -238,8 +239,8 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
 
         //stop the motors after the angle has been found.
 
-        motorLeft.setPower(0);
-        motorRight.setPower(0);
+        dl.setPower(0);
+        dr.setPower(0);
 
         //sleep for a bit to make sure the robot doesn't over shoot
         sleep(1000);
@@ -255,8 +256,6 @@ public class DemoAutoEncoderAndIMU extends LinearOpMode {
         globalAngle = 0;
     }
 
+
 }
-
-
-
 

@@ -1,4 +1,4 @@
-    /**
+/**
  * build.common.gradle
  *
  * Try to avoid editing this file, as it may be updated from time to time as the FTC SDK
@@ -54,9 +54,8 @@ android {
     defaultConfig {
         signingConfig signingConfigs.debug
         applicationId 'com.qualcomm.ftcrobotcontroller'
-        minSdkVersion 24
-        targetSdkVersion 29
-        multiDexEnabled true
+        minSdkVersion 23
+        targetSdkVersion 28
 
         /**
          * We keep the versionCode and versionName of robot controller applications in sync with
@@ -94,7 +93,7 @@ android {
             signingConfig signingConfigs.release
 
             ndk {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
         debug {
@@ -102,14 +101,14 @@ android {
             jniDebuggable true
             renderscriptDebuggable true
             ndk {
-                abiFilters "armeabi-v7a"
+                abiFilters "armeabi-v7a", "arm64-v8a"
             }
         }
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 
     sourceSets.main {
@@ -123,6 +122,4 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
-    jcenter()
 }
-
