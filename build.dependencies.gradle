@@ -4,6 +4,7 @@ repositories {
     jcenter()  // Needed for tensorflow-lite
     flatDir {
         dirs rootProject.file('libs')
+        maven { url = 'https://maven.brott.dev/' }
     }
 }
 
@@ -18,4 +19,6 @@ dependencies {
     implementation 'org.firstinspires.ftc:tfod:1.0.2'
     implementation 'org.tensorflow:tensorflow-lite:1.10.0'
     implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'com.acmerobotics.dashboard:dashboard:0.4.2'
+
 }

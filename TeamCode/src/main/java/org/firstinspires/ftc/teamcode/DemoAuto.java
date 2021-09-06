@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 @Autonomous(name="Demo Auto")
+
 public class DemoAuto extends LinearOpMode {
 
     private DcMotor motorLeft;
@@ -30,6 +31,7 @@ public class DemoAuto extends LinearOpMode {
         driveByTime(-1.0, 1000);
 
     }
+
     public void driveByTime (double power, long time){
 
         motorLeft.setPower(power);
@@ -43,3 +45,4 @@ public class DemoAuto extends LinearOpMode {
 
 
 }
+

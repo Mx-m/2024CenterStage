@@ -10,10 +10,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
-@Autonomous(name = "ImuExample")
+@Autonomous(name="ImuExample")
 
 
-public class ImuExample extends LinearOpMode {
+public class ImuExample extends LinearOpMode
+{
     private DcMotor motorLeft;
     private DcMotor motorRight;
 
@@ -21,7 +22,10 @@ public class ImuExample extends LinearOpMode {
     Orientation angles;
 
     @Override
-    public void runOpMode() {
+
+
+    public void runOpMode()
+    {
         motorLeft = hardwareMap.dcMotor.get("motorLeft");
         motorRight = hardwareMap.dcMotor.get("motorRight");
 
@@ -37,6 +41,7 @@ public class ImuExample extends LinearOpMode {
         imu.initialize(parameters);
 
 
+
         waitForStart();
 
         driveStraight(0.4, 1000);
@@ -46,7 +51,10 @@ public class ImuExample extends LinearOpMode {
 
     }
 
-    public void driveStraight(double power, long time) {
+
+
+    public void driveStraight(double power, long time)
+    {
 
         motorLeft.setPower(power);
         motorRight.setPower(power);
@@ -59,7 +67,9 @@ public class ImuExample extends LinearOpMode {
     }
 
 
-    public void turnRight(int angleReading) {
+
+    public void turnRight(int angleReading)
+    {
 
         angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
         telemetry.addData("Heading: ", angles.firstAngle);
@@ -69,7 +79,8 @@ public class ImuExample extends LinearOpMode {
         motorLeft.setPower(0.2);
         motorRight.setPower(-0.2);
 
-        while (angles.firstAngle > -angleReading && !isStopRequested()) {
+        while(angles.firstAngle > -angleReading && !isStopRequested())
+        {
 
             angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
             telemetry.addData("Heading: ", angles.firstAngle);
@@ -81,5 +92,36 @@ public class ImuExample extends LinearOpMode {
         sleep(250);
 
     }
+
+
+
+
+    public void turnLeft(int angleReading)
+    {
+
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        telemetry.addData("Heading: ", angles.firstAngle);
+        telemetry.update();
+        sleep(500);
+
+        motorLeft.setPower(-0.2);
+        motorRight.setPower(0.2);
+
+        while(angles.firstAngle < -angleReading && !isStopRequested())
+        {
+
+            angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+            telemetry.addData("Heading: ", angles.firstAngle);
+            telemetry.update();
+
+        }
+        motorLeft.setPower(0);
+        motorRight.setPower(0);
+        sleep(250);
+
+    }
+
+
+}
 
 
